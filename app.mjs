@@ -1,5 +1,7 @@
 import express from 'express';
 import log from '@ajar/marker';
+import morgan from 'morgan';
+import bodyParser from 'body-parser';
 
 const { PORT, HOST } = process.env;
 
@@ -16,8 +18,34 @@ app.get('/users', (req, res,next) => {
     res.status(200).send('Get all Users')
 })
 
+app.use(morgan('dev'));
 
 // '/search?food=burger&town=ashdod'
+
+// Define req.query
+app.get('/search', (req, res) => {
+
+    const { q, category, page } = req.query;
+  
+    res.send(`Search query: ${q}, Category: ${category}, Page: ${page}`);
+  });
+
+//Define req.params
+app.get('/users/:id', (req, res) => { 
+
+    const userId = req.params.id;
+  
+    res.send(`User ID: ${userId}`);
+  });
+  
+
+app.get('/posts/:postId/comments/:commentId', (req, res) => {
+
+    const postId = req.params.postId;
+    const commentId = req.params.commentId;
+  
+    res.send(`Post ID: ${postId}, Comment ID: ${commentId}`);
+  });
 
 
 app.listen(PORT, HOST,  ()=> {
