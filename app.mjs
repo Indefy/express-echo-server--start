@@ -9,19 +9,22 @@ const { PORT, HOST } = process.env;
 
 const app = express()
 
+app.use(bodyParser.urlencoded({ extended: false}))
 
+app.use(bodyParser.json())
+
+app.use(morgan('dev'));
+// URL: 'Default route'
 app.get('/',  (req, res) => {
     res.status(200).send('Hello Express!')
 })
-
+// URL: '/users'
 app.get('/users', (req, res,next) => {
     res.status(200).send('Get all Users')
 })
 
-app.use(morgan('dev'));
 
-// '/search?food=burger&town=ashdod'
-
+// URL: '/search?q=query&category=books&page=1'
 // Define req.query
 app.get('/search', (req, res) => {
 
@@ -30,7 +33,8 @@ app.get('/search', (req, res) => {
     res.send(`Search query: ${q}, Category: ${category}, Page: ${page}`);
   });
 
-//Define req.params
+  // URL: '/users/:id'
+  //Define req.params
 app.get('/users/:id', (req, res) => { 
 
     const userId = req.params.id;
@@ -38,15 +42,55 @@ app.get('/users/:id', (req, res) => {
     res.send(`User ID: ${userId}`);
   });
   
-
+/// URL: '/posts/:postId/comments/:commentId'
 app.get('/posts/:postId/comments/:commentId', (req, res) => {
+    const { postId, commentId } = req.params;
 
-    const postId = req.params.postId;
-    const commentId = req.params.commentId;
-  
     res.send(`Post ID: ${postId}, Comment ID: ${commentId}`);
   });
 
+//  req.body
+// URL: '/echo/'
+app.get('/echo', (req, res) => {
+  let { message } = req.body;
+  message = 'Hello Class!';
+
+  const htmlResponse = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Echo Response</title>
+  </head>
+  <body>
+  <h1>Echoing back message:</h1>
+  <p>${message}</p>
+  </body>
+  </html>
+  `;
+
+  res.send(htmlResponse);
+});
+
+//   URL: 'posts/showName'  >>>>  and send back body with text JSON in this format:
+//        {
+//          "name": "arrmagedon"
+//        }
+app.post('/showName', (req, res) => {
+    const { name } = req.body;
+    res.send(`The name of the show is: ${name}`);
+  });
+
+
+
+// Send a custom 404 response
+  app.use((req, res) => {
+    res.status(404);
+
+    res.send('<h1>404 -Page Not Found</h1><p>Error,Please enter a diffrent supported route.</p>');
+  });
+  
 
 app.listen(PORT, HOST,  ()=> {
     log.magenta(`🌎  listening on`,`http://${HOST}:${PORT}`);
